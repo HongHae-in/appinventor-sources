@@ -377,6 +377,7 @@ public class LoginServlet extends HttpServlet {
     String password = bundle.getString("password");
     String login = bundle.getString("login");
     String passwordclickhere = bundle.getString("passwordclickhere");
+    String googlelogin = bundle.getString("googlelogin");
 
     req.setCharacterEncoding("UTF-8");
     if (useGoogle.get()) {
@@ -388,6 +389,7 @@ public class LoginServlet extends HttpServlet {
     req.setAttribute("passwordLabel", password);
     req.setAttribute("loginLabel", login);
     req.setAttribute("passwordclickhereLabel", passwordclickhere);
+    req.setAttribute("googleloginLabel", googlelogin);
     req.setAttribute("localeLabel", locale);
     req.setAttribute("pleaselogin", bundle.getString("pleaselogin"));
     req.setAttribute("login", bundle.getString("login"));
