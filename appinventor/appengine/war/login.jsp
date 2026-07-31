@@ -5,7 +5,6 @@
 <!doctype html>
 <%
    String error = StringEscapeUtils.escapeHtml4(request.getParameter("error"));
-   String useGoogleLabel = (String) request.getAttribute("useGoogleLabel");
    String locale = StringEscapeUtils.escapeHtml4(request.getParameter("locale"));
    String redirect = StringEscapeUtils.escapeHtml4(request.getParameter("redirect"));
    String repo = StringEscapeUtils.escapeHtml4((String) request.getAttribute("repo"));
@@ -16,7 +15,6 @@
    if (locale == null) {
        locale = "en";
    }
-
 %>
 <html lang="<%= locale %>">
   <head>
@@ -34,29 +32,16 @@
       :root {
         --md-sys-color-primary: #6750A4;
         --md-sys-color-on-primary: #FFFFFF;
-        --md-sys-color-primary-container: #EADDFF;
-        --md-sys-color-on-primary-container: #21005D;
-        --md-sys-color-secondary: #625B71;
-        --md-sys-color-on-secondary: #FFFFFF;
-        --md-sys-color-secondary-container: #E8DEF8;
-        --md-sys-color-on-secondary-container: #1D192B;
         --md-sys-color-surface: #FEF7FF;
         --md-sys-color-on-surface: #1D1B20;
-        --md-sys-color-surface-variant: #E7E0EC;
         --md-sys-color-on-surface-variant: #49454F;
         --md-sys-color-outline: #79747E;
         --md-sys-color-outline-variant: #CAC4D0;
         --md-sys-color-error: #B3261E;
-        --md-sys-color-on-error: #FFFFFF;
         --md-sys-color-error-container: #F9DEDC;
         --md-sys-color-on-error-container: #410E0B;
         --md-sys-color-surface-container-lowest: #FFFFFF;
-        --md-sys-color-surface-container-low: #F7F2FA;
-        --md-sys-color-surface-container: #F3EDF7;
-        --md-sys-color-inverse-surface: #322F35;
-        --md-sys-color-inverse-on-surface: #F5EFF7;
         --md-sys-shape-corner-extra-large: 28px;
-        --md-sys-shape-corner-large: 16px;
         --md-sys-shape-corner-medium: 12px;
         --md-sys-shape-corner-small: 8px;
       }
@@ -64,7 +49,7 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
 
       body {
-        font-family: 'Google Sans', 'Noto Sans SC', 'Segoe UI', system-ui, sans-serif;
+        font-family: 'Google Sans', 'Noto Sans SC', sans-serif;
         background: var(--md-sys-color-surface);
         color: var(--md-sys-color-on-surface);
         min-height: 100vh;
@@ -89,25 +74,8 @@
         border: 1px solid var(--md-sys-color-outline-variant);
       }
 
-      .header {
-        text-align: center;
-        margin-bottom: 32px;
-      }
-
-      .header h1 {
-        font-size: 28px;
-        font-weight: 400;
-        color: var(--md-sys-color-on-surface);
-        line-height: 1.3;
-        letter-spacing: 0;
-      }
-
-      .header .subtitle {
-        font-size: 14px;
-        color: var(--md-sys-color-on-surface-variant);
-        margin-top: 8px;
-        line-height: 1.5;
-      }
+      .header { text-align: center; margin-bottom: 32px; }
+      .header h1 { font-size: 28px; font-weight: 400; line-height: 1.3; }
 
       .error-banner {
         background: var(--md-sys-color-error-container);
@@ -121,228 +89,73 @@
         align-items: center;
         gap: 10px;
       }
-
       .error-banner::before {
         content: 'error';
         font-family: 'Material Symbols Outlined';
         font-size: 20px;
       }
 
-      .form-section {
-        margin-bottom: 8px;
-      }
-
-      .md3-field {
-        position: relative;
-        margin-bottom: 20px;
-      }
-
+      .md3-field { position: relative; margin-bottom: 4px; margin-top: 16px; }
       .md3-field input {
-        width: 100%;
-        height: 56px;
-        padding: 24px 16px 8px;
+        width: 100%; height: 56px; padding: 24px 16px 8px;
         border: 1px solid var(--md-sys-color-outline);
         border-radius: var(--md-sys-shape-corner-small);
-        background: transparent;
-        font-size: 16px;
-        font-family: inherit;
-        color: var(--md-sys-color-on-surface);
-        outline: none;
-        transition: border-color 0.2s;
+        background: transparent; font-size: 16px; outline: none;
+        transition: border 0.2s;
       }
-
-      .md3-field input:hover {
-        border-color: var(--md-sys-color-on-surface);
-      }
-
-      .md3-field input:focus {
-        border-width: 2px;
-        border-color: var(--md-sys-color-primary);
-        padding: 23px 15px 7px;
-      }
+      .md3-field input:focus { border-width: 2px; border-color: var(--md-sys-color-primary); padding: 23px 15px 7px; }
+      .md3-field.error input { border-color: var(--md-sys-color-error); }
+      .md3-field.error input:focus { border-color: var(--md-sys-color-error); }
 
       .md3-field label {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 16px;
-        color: var(--md-sys-color-on-surface-variant);
-        pointer-events: none;
-        transition: all 0.2s ease;
-        background: var(--md-sys-color-surface-container-lowest);
-        padding: 0 4px;
+        position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+        font-size: 16px; color: var(--md-sys-color-on-surface-variant);
+        pointer-events: none; transition: all 0.2s ease;
+        background: var(--md-sys-color-surface-container-lowest); padding: 0 4px;
       }
+      .md3-field input:focus + label, .md3-field input:not(:placeholder-shown) + label {
+        top: 0; font-size: 12px; color: var(--md-sys-color-primary);
+      }
+      .md3-field.error label { color: var(--md-sys-color-error); }
 
-      .md3-field input:focus + label,
-      .md3-field input:not(:placeholder-shown) + label {
-        top: 0;
+      .error-text {
+        color: var(--md-sys-color-error);
         font-size: 12px;
-        color: var(--md-sys-color-primary);
+        margin-bottom: 8px;
+        margin-left: 16px;
+        min-height: 18px;
+        display: none;
       }
+      .error-text.visible { display: block; }
 
       .btn-primary {
-        width: 100%;
-        height: 48px;
-        border: none;
-        border-radius: 20px;
-        background: var(--md-sys-color-primary);
-        color: var(--md-sys-color-on-primary);
-        font-size: 14px;
-        font-weight: 500;
-        font-family: inherit;
-        letter-spacing: 0.1px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition: box-shadow 0.2s;
-        margin-top: 8px;
+        width: 100%; height: 48px; border: none; border-radius: 24px;
+        background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);
+        font-size: 14px; font-weight: 500; cursor: pointer; transition: box-shadow 0.2s;
+        margin-top: 16px;
       }
-
-      .btn-primary::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: var(--md-sys-color-on-primary);
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-
-      .btn-primary:hover::before { opacity: 0.08; }
-      .btn-primary:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.24); }
-      .btn-primary:active::before { opacity: 0.12; }
+      .btn-primary:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2); }
 
       .text-action {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        height: 40px;
-        padding: 0 12px;
-        border-radius: 20px;
-        border: none;
-        background: transparent;
-        color: var(--md-sys-color-primary);
-        font-size: 14px;
-        font-weight: 500;
-        font-family: inherit;
-        letter-spacing: 0.1px;
-        text-decoration: none;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition: background 0.2s;
+        display: inline-flex; align-items: center; justify-content: center;
+        height: 40px; padding: 0 16px; border-radius: 20px;
+        color: var(--md-sys-color-primary); font-size: 14px; font-weight: 500;
+        text-decoration: none; transition: background 0.2s, box-shadow 0.2s;
+        margin-top: 12px;
+      }
+      .text-action:hover {
+        background: rgba(103, 80, 164, 0.08);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.1);
       }
 
-      .text-action::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: var(--md-sys-color-primary);
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-
-      .text-action:hover::before { opacity: 0.08; }
-      .text-action:active::before { opacity: 0.12; }
-
-      .divider-section {
-        display: flex;
-        align-items: center;
-        margin: 16px 0;
-        gap: 16px;
-      }
-
-      .divider-section::before,
-      .divider-section::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: var(--md-sys-color-outline-variant);
-      }
-
-      .divider-section span {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--md-sys-color-on-surface-variant);
-        letter-spacing: 0.5px;
-      }
-
-      .btn-outlined {
-        width: 100%;
-        height: 48px;
-        border: 1px solid var(--md-sys-color-outline);
-        border-radius: 20px;
-        background: transparent;
-        color: var(--md-sys-color-primary);
-        font-size: 14px;
-        font-weight: 500;
-        font-family: inherit;
-        letter-spacing: 0.1px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        position: relative;
-        overflow: hidden;
-        transition: border-color 0.2s, background 0.2s;
-        text-decoration: none;
-      }
-
-      .btn-outlined::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: var(--md-sys-color-primary);
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-
-      .btn-outlined:hover {
-        border-color: var(--md-sys-color-on-surface);
-        background: rgba(103, 80, 164, 0.04);
-      }
-
-      .btn-outlined:hover::before { opacity: 0.08; }
-
-      .lang-chips {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 24px;
-      }
-
+      .lang-chips { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
       .lang-chip {
-        display: inline-flex;
-        align-items: center;
-        height: 32px;
-        padding: 0 16px;
-        border-radius: 8px;
-        border: 1px solid var(--md-sys-color-outline);
-        background: transparent;
-        color: var(--md-sys-color-on-surface-variant);
-        font-size: 14px;
-        font-weight: 500;
-        font-family: inherit;
-        text-decoration: none;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition: background 0.2s, border-color 0.2s, color 0.2s;
+        display: inline-flex; align-items: center; height: 32px; padding: 0 16px;
+        border-radius: 8px; border: 1px solid var(--md-sys-color-outline);
+        color: var(--md-sys-color-on-surface-variant); font-size: 14px; font-weight: 500;
+        text-decoration: none; transition: background 0.2s;
       }
-
-      .lang-chip::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: var(--md-sys-color-on-surface);
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-
-      .lang-chip:hover::before { opacity: 0.08; }
-      .lang-chip:active::before { opacity: 0.12; }
-
+      .lang-chip:hover { background: rgba(29, 27, 32, 0.08); }
     </style>
   </head>
 <body>
@@ -356,17 +169,18 @@
       <div class="error-banner"><%= error %></div>
 <% } %>
 
-      <form method=POST action="/login">
-        <div class="form-section">
-          <div class="md3-field">
-            <input type=text name=email value="" size="35" placeholder=" " autocomplete="email">
-            <label>${emailAddressLabel}</label>
-          </div>
-          <div class="md3-field">
-            <input type=password name=password value="" size="35" placeholder=" " autocomplete="current-password">
-            <label>${passwordLabel}</label>
-          </div>
+      <form id="loginForm" method=POST action="/login" novalidate>
+        <div class="md3-field" id="emailField">
+          <input type=text name=email id="emailInput" value="" placeholder=" " autocomplete="email">
+          <label>${emailAddressLabel}</label>
         </div>
+        <div id="emailError" class="error-text"></div>
+
+        <div class="md3-field" id="passwordField">
+          <input type=password name=password id="passwordInput" value="" placeholder=" " autocomplete="current-password">
+          <label>${passwordLabel}</label>
+        </div>
+        <div id="passwordError" class="error-text"></div>
 
 <% if (locale != null && !locale.equals("")) { %>
         <input type=hidden name=locale value="<%= locale %>">
@@ -391,12 +205,10 @@
 <% } %>
 
         <button type=submit class="btn-primary">${login}</button>
-        <div style="text-align:center;margin-top:12px;">
+        <div style="text-align:center;">
           <a href="/login/sendlink?locale=<%= locale %>" class="text-action">${passwordclickhereLabel}</a>
         </div>
       </form>
-
-
 
       <div class="lang-chips">
         <a class="lang-chip" href="<%= new UriBuilder("/login")
@@ -419,7 +231,55 @@
       <div style="text-align:center;margin-top:20px;">
         <a href="https://github.com/HongHae-in/appinventor-sources" target="_blank" style="font-size:12px;color:var(--md-sys-color-on-surface-variant);text-decoration:none;">GitHub</a>
       </div>
-
     </div>
   </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const emailInput = document.getElementById('emailInput');
+    const emailField = document.getElementById('emailField');
+    const emailError = document.getElementById('emailError');
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordField = document.getElementById('passwordField');
+    const passwordError = document.getElementById('passwordError');
+
+    const validateEmail = (email) => {
+      return String(email).toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+    };
+
+    form.addEventListener('submit', (e) => {
+      let hasError = false;
+
+      const emailValue = emailInput.value.trim();
+      if (emailValue === '') {
+        emailError.textContent = '${StringEscapeUtils.escapeEcmaScript(emailEmptyError)}';
+        emailField.classList.add('error');
+        emailError.classList.add('visible');
+        hasError = true;
+      } else if (!validateEmail(emailValue)) {
+        emailError.textContent = '${StringEscapeUtils.escapeEcmaScript(emailFormatError)}';
+        emailField.classList.add('error');
+        emailError.classList.add('visible');
+        hasError = true;
+      }
+
+      if (passwordInput.value.trim() === '') {
+        passwordError.textContent = '${StringEscapeUtils.escapeEcmaScript(passwordEmptyError)}';
+        passwordField.classList.add('error');
+        passwordError.classList.add('visible');
+        hasError = true;
+      }
+
+      if (hasError) e.preventDefault();
+    });
+
+    [emailInput, passwordInput].forEach(input => {
+      input.addEventListener('input', () => {
+        const field = input.closest('.md3-field');
+        const error = field.nextElementSibling;
+        field.classList.remove('error');
+        if (error && error.classList.contains('error-text')) error.classList.remove('visible');
+      });
+    });
+  </script>
 </body></html>

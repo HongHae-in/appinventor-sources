@@ -169,12 +169,12 @@ public class LoginServlet extends HttpServlet {
     if (page.equals("setpw")) {
       String uid = getParam(req);
       if (uid == null) {
-        fail(req, resp, "Invalid Set Password Link", locale);
+        fail(req, resp, bundle.getString("invalidSetPasswordLink"), locale);
         return;
       }
       PWData data = storageIo.findPWData(uid);
       if (data == null) {
-        fail(req, resp, "Invalid Set Password Link", locale);
+        fail(req, resp, bundle.getString("invalidSetPasswordLink"), locale);
         return;
       }
       if (DEBUG) {
@@ -183,42 +183,56 @@ public class LoginServlet extends HttpServlet {
       User user = storageIo.getUserFromEmail(data.email);
       userInfo = new OdeAuthFilter.UserInfo(); // Create new userInfo object
       userInfo.setUserId(user.getUserId()); // This effectively logs us in!
-      out = setCookieOutput(userInfo, resp);
-//      req.getSession().setAttribute("userid", user.getUserId()); // This effectively logs us in!
-      out.println("<html><head><title>Set Your Password</title>\n");
-      out.println("</head>\n<body>\n");
-      out.println("<h1>" + bundle.getString("setyourpassword") + "</h1>\n");
-      out.println("<form method=POST action=\"" + req.getRequestURI() + "\">");
-      out.println("<input type=password name=password value=\"\" size=\"35\"><br />\n");
-      out.println("<p><input type=hidden name=locale value=\""+ sanitizer.sanitize(locale) + "\"></p>");
-      out.println("<input type=Submit value=\"" + bundle.getString("setpassword") + "\" style=\"font-size: 300%;\">\n");
-      out.println("</form>\n");
+      renewCookie(userInfo, resp);
+
+      req.setAttribute("setyourpassword", bundle.getString("setyourpassword"));
+      req.setAttribute("password", bundle.getString("password"));
+      req.setAttribute("setpassword", bundle.getString("setpassword"));
+      req.setAttribute("passwordEmptyError", bundle.getString("passwordEmptyError"));
+      req.setAttribute("locale", locale);
+
+      try {
+        req.getRequestDispatcher("/setpw.jsp").forward(req, resp);
+      } catch (ServletException e) {
+        throw new IOException(e);
+      }
       storageIo.cleanuppwdata();
       return;
     } else if (page.equals("linksent")) {
-      out = setCookieOutput(userInfo, resp);
-      out.println("<html><head><title>" + bundle.getString("linksent") + "</title></head>\n");
-      out.println("<body>\n");
-      out.println("<h1>" + bundle.getString("linksent") + "</h1>\n");
-      out.println("<p>" + bundle.getString("checkemail") + "</p>\n");
+      renewCookie(userInfo, resp);
+      req.setAttribute("linksent", bundle.getString("linksent"));
+      req.setAttribute("checkemail", bundle.getString("checkemail"));
+      req.setAttribute("backToLogin", bundle.getString("backToLogin"));
+      req.setAttribute("login", bundle.getString("login"));
+      req.setAttribute("locale", locale);
+      try {
+        req.getRequestDispatcher("/linksent.jsp").forward(req, resp);
+      } catch (ServletException e) {
+        throw new IOException(e);
+      }
       return;
     } else if (page.equals("sendlink")) {
-      out = setCookieOutput(userInfo, resp);
-      out.println("<head><title>" + bundle.getString("requestreset") + "</title></head>\n");
-      out.println("<body>\n");
-      out.println("<h1>" + bundle.getString("requestlink") + "</h1>\n");
-      out.println("<p>" + bundle.getString("requestinstructions") + "</p>\n");
-      out.println("<form method=POST action=\"" + req.getRequestURI() + "\">\n");
-      out.println(bundle.getString("enteremailaddress") + ":&nbsp;<input type=text name=email value=\"\" size=\"35\"><br />\n");
-      out.println("<input type=hidden name=locale value=\"" + sanitizer.sanitize(locale) + "\">");
-      out.println("<p></p>");
-      out.println("<input type=submit value=\"" + bundle.getString("sendlink") + "\" style=\"font-size: 300%;\">\n");
-      out.println("</form>\n");
+      renewCookie(userInfo, resp);
+      req.setAttribute("requestreset", bundle.getString("requestreset"));
+      req.setAttribute("requestlink", bundle.getString("requestlink"));
+      req.setAttribute("requestinstructions", bundle.getString("requestinstructions"));
+      req.setAttribute("enteremailaddress", bundle.getString("enteremailaddress"));
+      req.setAttribute("sendlink", bundle.getString("sendlink"));
+      req.setAttribute("emailEmptyError", bundle.getString("emailEmptyError"));
+      req.setAttribute("emailFormatError", bundle.getString("emailFormatError"));
+      req.setAttribute("backToLogin", bundle.getString("backToLogin"));
+      req.setAttribute("login", bundle.getString("login"));
+      req.setAttribute("locale", locale);
+      try {
+        req.getRequestDispatcher("/sendlink.jsp").forward(req, resp);
+      } catch (ServletException e) {
+        throw new IOException(e);
+      }
       return;
     } else if (page.equals("token") || page.equals("stoken")) {
       String encodedToken = params.get("token");
       if (encodedToken == null) {
-        fail(req, resp, "No Authentication Token Provided", locale);
+        fail(req, resp, bundle.getString("noAuthToken"), locale);
         return;
       }
       TokenProto.token token = null;
@@ -324,6 +338,9 @@ public class LoginServlet extends HttpServlet {
     req.setAttribute("passwordLabel", password);
     req.setAttribute("loginLabel", login);
     req.setAttribute("passwordclickhereLabel", passwordclickhere);
+    req.setAttribute("emailEmptyError", bundle.getString("emailEmptyError"));
+    req.setAttribute("emailFormatError", bundle.getString("emailFormatError"));
+    req.setAttribute("passwordEmptyError", bundle.getString("passwordEmptyError"));
     req.setAttribute("localeLabel", locale);
     req.setAttribute("pleaselogin", bundle.getString("pleaselogin"));
     req.setAttribute("login", bundle.getString("login"));
@@ -380,13 +397,13 @@ public class LoginServlet extends HttpServlet {
     if (page.equals("sendlink")) {
       String email = params.get("email");
       if (email == null) {
-        fail(req, resp, "No Email Address Provided", locale);
+        fail(req, resp, bundle.getString("noEmailProvided"), locale);
         return;
       }
       // Send email here, for now we put it in the error string and redirect
       PWData pwData = storageIo.createPWData(email);
       if (pwData == null) {
-        fail(req, resp, "Internal Error", locale);
+        fail(req, resp, bundle.getString("internalError"), locale);
         return;
       }
       String link = trimPage(req) + pwData.id + "/setpw";
@@ -396,7 +413,7 @@ public class LoginServlet extends HttpServlet {
       return;
     } else if (page.equals("setpw")) {
       if (userInfo == null || userInfo.getUserId().equals("")) {
-        fail(req, resp, "Session Timed Out", locale);
+        fail(req, resp, bundle.getString("sessionTimedOut"), locale);
         return;
       }
       User user = storageIo.getUser(userInfo.getUserId());
@@ -409,10 +426,10 @@ public class LoginServlet extends HttpServlet {
       try {
         hashedPassword = PasswordHash.createHash(password);
       } catch (NoSuchAlgorithmException e) {
-        fail(req, resp, "System Error hashing password", locale);
+        fail(req, resp, bundle.getString("systemErrorHashing"), locale);
         return;
       } catch (InvalidKeySpecException e) {
-        fail(req, resp, "System Error hashing password", locale);
+        fail(req, resp, bundle.getString("systemErrorHashing"), locale);
         return;
       }
 
@@ -435,7 +452,7 @@ public class LoginServlet extends HttpServlet {
 
     String hash = user.getPassword();
     if ((hash == null) || hash.equals("")) {
-      fail(req, resp, "No Password Set for User", locale);
+      fail(req, resp, bundle.getString("noPasswordSet"), locale);
       return;
     }
 
@@ -553,8 +570,7 @@ public class LoginServlet extends HttpServlet {
     }
   }
 
-  private PrintWriter setCookieOutput(OdeAuthFilter.UserInfo userInfo, HttpServletResponse resp)
-    throws IOException {
+  private void renewCookie(OdeAuthFilter.UserInfo userInfo, HttpServletResponse resp) {
     if (userInfo != null) {     // if we never had logged in, this will be null!
       String newCookie = userInfo.buildCookie(true);
       if (newCookie != null) {
@@ -563,6 +579,11 @@ public class LoginServlet extends HttpServlet {
         resp.addCookie(cook);
       }
     }
+  }
+
+  private PrintWriter setCookieOutput(OdeAuthFilter.UserInfo userInfo, HttpServletResponse resp)
+    throws IOException {
+    renewCookie(userInfo, resp);
     resp.setContentType("text/html; charset=utf-8");
     PrintWriter out = resp.getWriter();
     return out;
