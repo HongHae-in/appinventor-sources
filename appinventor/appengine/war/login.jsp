@@ -396,19 +396,7 @@
         </div>
       </form>
 
-<% if (useGoogleLabel != null && useGoogleLabel.equals("true")) { %>
-      <div class="divider-section"><span>OR</span></div>
-      <a class="btn-outlined" href="<%= new UriBuilder("/login/google")
-                                .add("locale", locale)
-                                .add("autoload", autoload)
-                                .add("repo", repo)
-                                .add("galleryId", galleryId)
-                                .add("ng", newGalleryId)
-                                .add("ui", uiPreference)
-                                .add("redirect", redirect).build() %>">
-        ${googleloginLabel}
-      </a>
-<% } %>
+
 
       <div class="lang-chips">
         <a class="lang-chip" href="<%= new UriBuilder("/login")

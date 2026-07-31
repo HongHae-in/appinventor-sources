@@ -11,18 +11,6 @@
     <filter-class>com.google.appinventor.server.OdeAuthFilter</filter-class>
   </filter>
 
-  <!-- Security constraints: require login for these urls -->
-  <!-- This is how we implement Google Account login -->
-
-  <security-constraint>
-    <web-resource-collection>
-      <url-pattern>/login/google</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>*</role-name>
-    </auth-constraint>
-  </security-constraint>
-
   <!-- Security constraint: no security should be used for these urls -->
   <security-constraint>
     <web-resource-collection>
