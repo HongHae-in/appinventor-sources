@@ -280,16 +280,6 @@ public class StoredData {
     public int width;
   }
 
-  // Data Structure to keep track of url's emailed out for password
-  // setting and reseting. The Id (which is a UUID) is part of the URL
-  // that is mailed out.
-  @Unindexed
-  public static final class PWData {
-    @Id public String id;              // "Secret" URL part
-    @Indexed public Date timestamp; // So we know when to expire this objects
-    public String email;            // Email of account in question
-  }
-
   // A Shared backpack. Shared backpacks are not associated with
   // any one user. Instead they are stored independent of projects
   // and users. At login time a shared backpack may be specified.

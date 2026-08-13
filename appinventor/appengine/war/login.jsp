@@ -205,9 +205,6 @@
 <% } %>
 
         <button type=submit class="btn-primary">${login}</button>
-        <div style="text-align:center;">
-          <a href="/login/sendlink?locale=<%= locale %>" class="text-action">${passwordclickhereLabel}</a>
-        </div>
       </form>
 
       <div class="lang-chips">
@@ -243,28 +240,19 @@
     const passwordField = document.getElementById('passwordField');
     const passwordError = document.getElementById('passwordError');
 
-    const validateEmail = (email) => {
-      return String(email).toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-    };
-
     form.addEventListener('submit', (e) => {
       let hasError = false;
 
       const emailValue = emailInput.value.trim();
       if (emailValue === '') {
-        emailError.textContent = '${StringEscapeUtils.escapeEcmaScript(emailEmptyError)}';
-        emailField.classList.add('error');
-        emailError.classList.add('visible');
-        hasError = true;
-      } else if (!validateEmail(emailValue)) {
-        emailError.textContent = '${StringEscapeUtils.escapeEcmaScript(emailFormatError)}';
+        emailError.textContent = '<%= org.apache.commons.lang3.StringEscapeUtils.escapeEcmaScript((String)request.getAttribute("emailEmptyError")) %>';
         emailField.classList.add('error');
         emailError.classList.add('visible');
         hasError = true;
       }
 
       if (passwordInput.value.trim() === '') {
-        passwordError.textContent = '${StringEscapeUtils.escapeEcmaScript(passwordEmptyError)}';
+        passwordError.textContent = '<%= org.apache.commons.lang3.StringEscapeUtils.escapeEcmaScript((String)request.getAttribute("passwordEmptyError")) %>';
         passwordField.classList.add('error');
         passwordError.classList.add('visible');
         hasError = true;

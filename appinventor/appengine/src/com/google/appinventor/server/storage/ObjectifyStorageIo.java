@@ -35,7 +35,6 @@ import com.google.appinventor.server.storage.StoredData.FileData;
 import com.google.appinventor.server.storage.StoredData.MotdData;
 import com.google.appinventor.server.storage.StoredData.NonceData;
 import com.google.appinventor.server.storage.StoredData.ProjectData;
-import com.google.appinventor.server.storage.StoredData.PWData;
 import com.google.appinventor.server.storage.StoredData.SplashData;
 import com.google.appinventor.server.storage.StoredData.UserData;
 import com.google.appinventor.server.storage.StoredData.UserFileData;
@@ -145,6 +144,7 @@ public class ObjectifyStorageIo implements StorageIo {
   private static final long TWENTYFOURHOURS = 24*3600*1000; // 24 hours in milliseconds
 
   private static final boolean DEBUG = Flag.createFlag("appinventor.debugging", false).get();
+  private static final Flag<String> adminAccount = Flag.createFlag("admin.account", "admin");
 
   // Use this class to define the work of a job that can be
   // retried. The "datastore" argument to run() is the Objectify
@@ -207,7 +207,6 @@ public class ObjectifyStorageIo implements StorageIo {
     ObjectifyService.register(FeedbackData.class);
     ObjectifyService.register(NonceData.class);
     ObjectifyService.register(CorruptionRecord.class);
-    ObjectifyService.register(PWData.class);
     ObjectifyService.register(SplashData.class);
     ObjectifyService.register(Backpack.class);
     ObjectifyService.register(AllowedTutorialUrls.class);
@@ -378,6 +377,9 @@ public class ObjectifyStorageIo implements StorageIo {
     userData.settings = "";
     userData.email = email == null ? "" : email;
     userData.emaillower = email == null ? "" : emaillower;
+    if (email != null && email.equals(adminAccount.get())) {
+      userData.isAdmin = true;
+    }
     datastore.put(userData);
     return userData;
   }
@@ -2260,66 +2262,8 @@ public class ObjectifyStorageIo implements StorageIo {
 
   }
 
-  @Override
-  public PWData createPWData(final String email) {
-    Objectify datastore = ObjectifyService.begin();
-    final PWData pwData = new PWData();
-    pwData.id = UUID.randomUUID().toString();
-    pwData.email = email;
-    pwData.timestamp = new Date();
-    try {
-      runJobWithRetries(new JobRetryHelper() {
-          @Override
-          public void run(Objectify datastore) {
-            datastore.put(pwData);
-          }
-        }, true);
-    } catch (ObjectifyException e) {
-      throw CrashReport.createAndLogError(LOG, null, null, e);
-    }
-    return pwData;
-  }
-
-  @Override
-  public StoredData.PWData findPWData(final String uid) {
-    final Result<PWData> result = new Result<PWData>();
-    try {
-      runJobWithRetries(new JobRetryHelper() {
-          @Override
-          public void run(Objectify datastore) {
-            PWData pwData = datastore.find(pwdataKey(uid));
-            if (pwData != null) {
-              result.t = pwData;
-            }
-          }
-        }, false);
-    } catch (ObjectifyException e) {
-      throw CrashReport.createAndLogError(LOG, null, null, e);
-    }
-    return result.t;
-  }
-
-  // Remove up to 10 expired PWData elements from the datastore
-  @Override
-  public void cleanuppwdata() {
-    Objectify datastore = ObjectifyService.begin();
-    // We do not use runJobWithRetries because if we fail here, we will be
-    // called again the next time someone attempts to set a password
-    // Note: we remove data after 24 hours.
-    try {
-      datastore.delete(datastore.query(PWData.class)
-        .filter("timestamp <", new Date((new Date()).getTime() - 3600*24*1000L))
-        .limit(10).fetchKeys());
-    } catch (Exception ex) {
-        LOG.log(Level.WARNING, "Exception during cleanupNonces", ex);
-    }
-  }
-
-  private Key<StoredData.PWData> pwdataKey(String uid) {
-    return new Key<StoredData.PWData>(PWData.class, uid);
-  }
-
-  private Key<StoredData.Backpack> backpackdataKey(String backPackId) {
+  private Key<StoredData.Backpack>
+backpackdataKey(String backPackId) {
     return new Key<StoredData.Backpack>(Backpack.class, backPackId);
   }
 
